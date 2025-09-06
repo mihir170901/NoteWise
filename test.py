@@ -76,6 +76,32 @@ def list_notes():
     for i, note in enumerate(docs, start=1):
         print(f"{i}. {note}")
 
+# -------------------------------
+# Function to delete a note
+# -------------------------------
+def delete_note():
+    docs = collection.get()["documents"]
+    ids = collection.get()["ids"]
+
+    if not docs:
+        print("ℹ️ No notes to delete.")
+        return
+
+    print("\n📄 Your Notes:")
+    for i, note in enumerate(docs, start=1):
+        print(f"{i}. {note}")
+
+    try:
+        choice = int(input("\nEnter the number of the note to delete: "))
+        if choice < 1 or choice > len(ids):
+            print("❌ Invalid number.")
+            return
+        note_id = ids[choice - 1]
+        collection.delete(ids=[note_id])
+        print("✅ Note deleted!")
+    except ValueError:
+        print("❌ Please enter a valid number.")
+
 
 # -------------------------------
 # Main program loop
@@ -85,7 +111,7 @@ if __name__ == "__main__":
     print("You can add notes and later ask questions about them.")
 
     while True:
-        mode = input("\nChoose: [1] Add note  [2] Ask question  [3] List notes  [q] Quit\n> ")
+        mode = input("\nChoose: [1] Add note  [2] Ask question  [3] List notes  [4] Delete note  [q] Quit\n> ")
         if mode == "1":
             note = input("Enter your note:\n> ")
             add_note(note)
@@ -95,8 +121,10 @@ if __name__ == "__main__":
             print("\n🤖", answer)
         elif mode == "3":
             list_notes()
+        elif mode == "4":
+            delete_note()
         elif mode.lower() == "q":
             print("👋 Goodbye! Your notes are saved in ./my_second_brain")
             break
         else:
-            print("❌ Invalid option. Please choose 1, 2, 3, or q.")
+            print("❌ Invalid option. Please choose 1, 2, 3, 4, or q.")
