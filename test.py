@@ -65,6 +65,19 @@ def query_notes(question: str):
     return response.choices[0].message.content
 
 # -------------------------------
+# Function to list all notes
+# -------------------------------
+def list_notes():
+    docs = collection.get()["documents"]
+    if not docs:
+        print("ℹ️ No notes found.")
+        return
+    print("\n📄 Your Notes:")
+    for i, note in enumerate(docs, start=1):
+        print(f"{i}. {note}")
+
+
+# -------------------------------
 # Main program loop
 # -------------------------------
 if __name__ == "__main__":
@@ -72,7 +85,7 @@ if __name__ == "__main__":
     print("You can add notes and later ask questions about them.")
 
     while True:
-        mode = input("\nChoose: [1] Add note  [2] Ask question  [q] Quit\n> ")
+        mode = input("\nChoose: [1] Add note  [2] Ask question  [3] List notes  [q] Quit\n> ")
         if mode == "1":
             note = input("Enter your note:\n> ")
             add_note(note)
@@ -80,8 +93,10 @@ if __name__ == "__main__":
             q = input("Ask your question:\n> ")
             answer = query_notes(q)
             print("\n🤖", answer)
+        elif mode == "3":
+            list_notes()
         elif mode.lower() == "q":
             print("👋 Goodbye! Your notes are saved in ./my_second_brain")
             break
         else:
-            print("❌ Invalid option. Please choose 1, 2, or q.")
+            print("❌ Invalid option. Please choose 1, 2, 3, or q.")
