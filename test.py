@@ -3,6 +3,7 @@ import chromadb
 from chromadb.utils import embedding_functions
 from openai import OpenAI
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load environment variables from .env
 load_dotenv()
@@ -32,14 +33,29 @@ collection = chroma_client.get_or_create_collection(
 # -------------------------------
 # Function to add a note
 # -------------------------------
-def add_note(note: str):
+def add_note():
+    print("\n📝 Enter your note (type END on a new line to finish):")
+
+    lines = []
+    while True:
+        line = input()
+        if line.strip().upper() == "END":
+            break
+        lines.append(line)
+
+    note = "\n".join(lines).strip()
+    if not note:
+        print("⚠️ Empty note discarded.")
+        return
+
     # Use current count as unique ID
     all_ids = collection.get()["ids"]
     new_id = str(len(all_ids) + 1)
 
     collection.add(
         documents=[note],
-        ids=[new_id]
+        ids=[new_id],
+        metadatas=[{"timestamp": datetime.now().isoformat()}]  # timestamp will come into play soon
     )
     print("✅ Note added!")
 
@@ -113,8 +129,7 @@ if __name__ == "__main__":
     while True:
         mode = input("\nChoose: [1] Add note  [2] Ask question  [3] List notes  [4] Delete note  [q] Quit\n> ")
         if mode == "1":
-            note = input("Enter your note:\n> ")
-            add_note(note)
+            add_note()
         elif mode == "2":
             q = input("Ask your question:\n> ")
             answer = query_notes(q)
