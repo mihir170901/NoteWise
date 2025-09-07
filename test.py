@@ -84,13 +84,24 @@ def query_notes(question: str):
 # Function to list all notes
 # -------------------------------
 def list_notes():
-    docs = collection.get()["documents"]
+    notes = collection.get()
+    docs = notes["documents"]
+    ids = notes["ids"]
+    metas = notes["metadatas"]
+
     if not docs:
         print("ℹ️ No notes found.")
         return
+
     print("\n📄 Your Notes:")
-    for i, note in enumerate(docs, start=1):
-        print(f"{i}. {note}")
+    for i, (note, meta) in enumerate(zip(docs, metas), start=1):
+        if meta is None:
+            timestamp = "Unknown"
+        else:
+            timestamp = meta.get("timestamp", "Unknown")
+        print(f"{i}. [{timestamp}] {note}")
+
+
 
 # -------------------------------
 # Function to delete a note
