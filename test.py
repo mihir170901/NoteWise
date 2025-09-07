@@ -48,16 +48,25 @@ def add_note():
         print("⚠️ Empty note discarded.")
         return
 
+    # Ask for tags
+    tags_input = input("Add tags for this note (comma-separated, optional): ").strip()
+    tags_str = ",".join([t.strip() for t in tags_input.split(",")]) if tags_input else ""
+
     # Use current count as unique ID
     all_ids = collection.get()["ids"]
     new_id = str(len(all_ids) + 1)
 
+    # Add note to ChromaDB
     collection.add(
         documents=[note],
         ids=[new_id],
-        metadatas=[{"timestamp": datetime.now().isoformat()}]  # timestamp will come into play soon
+        metadatas=[{
+            "timestamp": datetime.now().isoformat(),
+            "tags": tags_str  # store as string to satisfy ChromaDB metadata type
+        }]
     )
-    print("✅ Note added!")
+    print(f"✅ Note added! Tags: {tags_str if tags_str else 'None'}")
+
 
 # -------------------------------
 # Function to query notes
@@ -86,7 +95,6 @@ def query_notes(question: str):
 def list_notes():
     notes = collection.get()
     docs = notes["documents"]
-    ids = notes["ids"]
     metas = notes["metadatas"]
 
     if not docs:
@@ -95,12 +103,9 @@ def list_notes():
 
     print("\n📄 Your Notes:")
     for i, (note, meta) in enumerate(zip(docs, metas), start=1):
-        if meta is None:
-            timestamp = "Unknown"
-        else:
-            timestamp = meta.get("timestamp", "Unknown")
-        print(f"{i}. [{timestamp}] {note}")
-
+        timestamp = meta.get("timestamp", "Unknown") if meta else "Unknown"
+        tags = meta.get("tags", "None") if meta else "None"
+        print(f"{i}. [{timestamp}] Tags: {tags}\n{note}\n")
 
 
 # -------------------------------
